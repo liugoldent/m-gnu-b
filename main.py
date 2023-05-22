@@ -18,7 +18,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 class Msg(BaseModel):
     msg: str
 
