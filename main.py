@@ -8,7 +8,7 @@ app.include_router(stockRouter, prefix='/stock')
 
 origins = [
     "http://localhost:3000",
-    "https://golden-frontend-xi.vercel.app"
+    "https://golden-frontend-xi.vercel.app' "
 ]
 app.add_middleware(
     CORSMiddleware,
