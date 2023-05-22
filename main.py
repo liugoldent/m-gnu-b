@@ -1,10 +1,22 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from router.stock.index import router as stockRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+app.include_router(stockRouter, prefix='/stock')
 
-
+origins = [
+    "http://localhost:3000",
+    "https://golden-frontend-xi.vercel.app"
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class Msg(BaseModel):
