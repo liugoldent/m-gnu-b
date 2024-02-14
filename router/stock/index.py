@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request
-from .tool.db import postCapitalDb, getBullOrBearCode
+from ..public.db import postCapitalDb, getBullOrBearCode
 router = APIRouter()
 
 

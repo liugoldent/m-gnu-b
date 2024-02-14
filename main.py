@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from router.stock.index import router as stockRouter
+from router.crawler.index import router as crawlerRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 app.include_router(stockRouter, prefix='/stock')
+app.include_router(crawlerRouter, prefix='/crawler')
+
 
 origins = [
     "http://localhost:3000",
