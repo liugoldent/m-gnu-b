@@ -52,3 +52,8 @@ def delgoodInfo(collectionName):
 def getGoodInfoDb(collectionName):
     db = client['goodInfo']
     return db[collectionName].find({})
+
+# 更新goodInfo 10cross20 collection
+def postGoodInfoCross1020(codeObject):
+    db = client['goodInfo']
+    db['cross1020'].insert_one(codeObject)
