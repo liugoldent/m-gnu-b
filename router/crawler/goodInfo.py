@@ -1,7 +1,7 @@
 from lxml import etree
 from datetime import datetime
 from ..public.fakeUserAgentGenerate import userAgentRoute
-from ..public.db import postGoodInfoCross1020
+from ..public.db import postDBGoodInfoCross1020, getDBGoodInfoCross1020
 import re
 
 import time
@@ -13,6 +13,7 @@ goodInfoBullUrl = {
     'bear': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%4010%E6%97%A5%2F20%E6%97%A5'
 }
 
+# 更新goodInfo交叉資料
 def postGoodInfo():
     finalResult = {}
     currentTime = datetime.now()
@@ -53,8 +54,9 @@ def postGoodInfo():
                 })
         finalResult[keyItem] = listResult
     finalResult['updateDay'] = f"{finalResult['bull'][0]['updateDay']}"
-    postGoodInfoCross1020(finalResult)
+    postDBGoodInfoCross1020(finalResult)
 
+# 計算Bias
 def getBias(text):
     pattern = r"([+-]?\d+(\.\d+)?%)"
     result = re.search(pattern, text)
@@ -63,17 +65,20 @@ def getBias(text):
         return float(rawPercent)
     else:
         return 100
-def getGoodInfo():
+    
+# 取得某日的cross1020結果
+def getGoodInfoCross1020(day, marketType):
     listResult = {
-        'sell': [],
-        'buy': []
+        'bear': [],
+        'bull': [],
+        'updateDay': ''
     }
-    rawList = getGoodInfoDb('local1')
-    for item in rawList:
-        if item['buyOrSell'] == 'sell':
-            # listResult['sell'].append({'code': item['code'], 'name': item['name'], 'buyOrSell': item['buyOrSell']}) 這裡是所有可以拿的資料
-            # 但因為篩選，所以回傳code而已
-            listResult['sell'].append(item['code'])
-        if item['buyOrSell'] == 'buy':
-            listResult['buy'].append(item['code'])
-    return listResult
+    rawList = getDBGoodInfoCross1020(day)
+    for key in rawList:
+        listResult['bear'] = key['bear']
+        listResult['bull'] = key['bull']
+        listResult['updateDay'] = key['updateDay']
+    return {
+        marketType: listResult[marketType],
+        'updateDay':  key['updateDay']
+    }
