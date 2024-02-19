@@ -53,7 +53,7 @@ def postGoodInfo():
                     'bias20': bias20
                 })
         finalResult[keyItem] = listResult
-    finalResult['updateDay'] = f"{finalResult['bull'][0]['updateDay']}"
+    finalResult['updateDay'] = f"{(finalResult['bull'][0]['updateDay']).replace('/', '-')}"
     postDBGoodInfoCross1020(finalResult)
 
 # 計算Bias

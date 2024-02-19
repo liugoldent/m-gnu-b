@@ -11,7 +11,8 @@ app.include_router(crawlerRouter, prefix='/crawler')
 
 origins = [
     "http://localhost:3000",
-    "https://golden-frontend-xi.vercel.app"
+    "http://localhost:5173",
+    "https://mgnuf.netlify.app/"
 ]
 app.add_middleware(
     CORSMiddleware,
