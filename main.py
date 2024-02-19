@@ -12,7 +12,7 @@ app.include_router(crawlerRouter, prefix='/crawler')
 origins = [
     "http://localhost:3000",
     "http://localhost:5173",
-    "https://mgnuf.netlify.app/"
+    "https://mgnuf.netlify.app"
 ]
 app.add_middleware(
     CORSMiddleware,
