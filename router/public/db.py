@@ -11,15 +11,15 @@ cluster = f"mongodb+srv://{user_name}:{user_pwd}@cluster0.lzg4zlq.mongodb.net/?r
 client = MongoClient(cluster, tlsCAFile=certifi.where())
  
 
-# 取得 goodInfo 10cross20 collection
-def getDBGoodInfoCross1020(day):
+# 取得 goodInfo 10cross20 5cross20 collection
+def getDBGoodInfoData(day, crossType):
     db = client['goodInfo']
-    result = db['cross1020'].find({'updateDay': day})
+    result = db[crossType].find({'updateDay': day})
     print(result)
     return result
 
 
 # 更新goodInfo 10cross20 collection
-def postDBGoodInfoCross1020(codeObject):
+def postDBGoodInfoCross(codeObject, collectionName):
     db = client['goodInfo']
-    db['cross1020'].insert_one(codeObject)
+    db[collectionName].insert_one(codeObject)

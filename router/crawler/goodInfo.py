@@ -1,23 +1,33 @@
 from lxml import etree
 from datetime import datetime
 from ..public.fakeUserAgentGenerate import userAgentRoute
-from ..public.db import postDBGoodInfoCross1020, getDBGoodInfoCross1020
+from ..public.db import postDBGoodInfoCross, getDBGoodInfoData
 import re
 
 import time
 import requests
 
 
-goodInfoBullUrl = {
-    'bull': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%4010%E6%97%A5%2F20%E6%97%A5',
-    'bear': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%4010%E6%97%A5%2F20%E6%97%A5'
+# goodInfoBullUrl = {
+#     'bull': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%4010%E6%97%A5%2F20%E6%97%A5',
+#     'bear': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%4010%E6%97%A5%2F20%E6%97%A5'
+# }
+goodInfoTypeUrl = {
+    'cross1020': {
+        'bull': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%4010%E6%97%A5%2F20%E6%97%A5',
+        'bear': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%4010%E6%97%A5%2F20%E6%97%A5'
+    },
+    'cross0520': {
+        'bull': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=5%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%405%E6%97%A5%2F20%E6%97%A5',
+        'bear': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=5%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%405%E6%97%A5%2F20%E6%97%A5'
+    }
 }
-
 # 更新goodInfo交叉資料
-def postGoodInfo():
+def postGoodInfo(type):
+    goodInfoUrl = goodInfoTypeUrl[type]
     finalResult = {}
     currentTime = datetime.now()
-    for keyItem, urlItem in goodInfoBullUrl.items():
+    for keyItem, urlItem in goodInfoUrl.items():
         response = requests.get(urlItem, headers={'User-Agent': userAgentRoute()})
         time.sleep(2)
         response.encoding = 'utf-8'
@@ -54,7 +64,7 @@ def postGoodInfo():
                 })
         finalResult[keyItem] = listResult
     finalResult['updateDay'] = f"{(finalResult['bull'][0]['updateDay']).replace('/', '-')}"
-    postDBGoodInfoCross1020(finalResult)
+    postDBGoodInfoCross(finalResult, type)
 
 # 計算Bias
 def getBias(text):
@@ -67,13 +77,13 @@ def getBias(text):
         return 100
     
 # 取得某日的cross1020結果
-def getGoodInfoCross1020(day, marketType):
+def getGoodInfoCrossData(day, marketType, crossType):
     listResult = {
         'bear': [],
         'bull': [],
         'updateDay': ''
     }
-    rawList = getDBGoodInfoCross1020(day)
+    rawList = getDBGoodInfoData(day, crossType)
     for key in rawList:
         listResult['bear'] = key['bear']
         listResult['bull'] = key['bull']
