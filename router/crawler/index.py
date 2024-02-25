@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, BackgroundTasks
 from .goodInfo import postGoodInfo, getGoodInfoCrossData
+import asyncio
 
 router = APIRouter()
 
@@ -10,9 +11,17 @@ def api():
 
 # 更新collection資料庫
 @router.post('/goodInfo/{crossType}')
-def api(crossType):
-    result = postGoodInfo(crossType)
-    return result
+async def api(background_tasks: BackgroundTasks, crossType: str):
+    background_tasks.add_task(postGoodInfo, crossType)
+    # result = postGoodInfo(crossType)
+    return 'ing'
+
+# 一次更新所有collection資料庫
+@router.post('/goodInfo')
+async def api(background_tasks: BackgroundTasks):
+    background_tasks.add_task(postGoodInfo, 'cross1020')
+    background_tasks.add_task(postGoodInfo, 'cross0520')
+    return 'ing'
 
 # 取得cross1020資料庫資料
 # day：交易日期（格式2024-02-25）

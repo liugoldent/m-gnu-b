@@ -63,6 +63,7 @@ def postGoodInfo(type):
                     'bias20': bias20
                 })
         finalResult[keyItem] = listResult
+        print(listResult)
     finalResult['updateDay'] = f"{(finalResult['bull'][0]['updateDay']).replace('/', '-')}"
     postDBGoodInfoCross(finalResult, type)
 

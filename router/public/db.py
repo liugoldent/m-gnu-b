@@ -23,3 +23,4 @@ def getDBGoodInfoData(day, crossType):
 def postDBGoodInfoCross(codeObject, collectionName):
     db = client['goodInfo']
     db[collectionName].insert_one(codeObject)
+    print(f'finish{collectionName}')
