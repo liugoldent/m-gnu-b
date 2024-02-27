@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, BackgroundTasks
 from .goodInfo import postGoodInfo, getGoodInfoCrossData
 import asyncio
+from ..public.getDifference import getDifferenceFunc
 
 router = APIRouter()
 
@@ -21,13 +22,25 @@ async def api(background_tasks: BackgroundTasks, crossType: str):
 async def api(background_tasks: BackgroundTasks):
     background_tasks.add_task(postGoodInfo, 'cross1020')
     background_tasks.add_task(postGoodInfo, 'cross0520')
+    background_tasks.add_task(postGoodInfo, 'cross051020')
     return 'ing'
 
-# 取得cross1020資料庫資料
-# day：交易日期（格式2024-02-25）
-# type：bull or bear去區分多空
-@router.get('/goodInfo/{crossType}/{day}/{marketType}')
-def api(day, marketType, crossType):
-    result = getGoodInfoCrossData(day, marketType, crossType)
-    return result
+# 取得cross資料庫資料
+# {crossType}：是哪個資料庫（cross1020 or cross0520
+# {listType}：是取交集或是單純列表
+# {marketType}：bull or bear去區分多空
+@router.post('/goodInfo/{crossType}/{listType}/{marketType}')
+async def api(listType, marketType, crossType, request: Request):
+    postData = await request.json()
+    rawDay = postData['day']
+    resultObj = {}
+    list1 = getGoodInfoCrossData(rawDay['day1'], marketType, crossType)
+    if listType == 'list':
+        return list1
+    if listType == 'difference':
+        list2 = getGoodInfoCrossData(rawDay['day2'], marketType, crossType)
+        print(len(list1[marketType]))
+        print(len(list2[marketType]))
+        resultObj[marketType] = [] if len(list1[marketType]) > len(list2[marketType]) else getDifferenceFunc(list1[marketType], list2[marketType])
+        return resultObj
 

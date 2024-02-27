@@ -20,6 +20,10 @@ goodInfoTypeUrl = {
     'cross0520': {
         'bull': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=5%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%405%E6%97%A5%2F20%E6%97%A5',
         'bear': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=5%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%405%E6%97%A5%2F20%E6%97%A5'
+    },
+    'cross051020': {
+        'bull': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=5%E6%97%A5%2F10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%405%E6%97%A5%2F10%E6%97%A5%2F20%E6%97%A5',
+        'bear': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=5%E6%97%A5%2F10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%405%E6%97%A5%2F10%E6%97%A5%2F20%E6%97%A5'
     }
 }
 # 更新goodInfo交叉資料
@@ -29,7 +33,7 @@ def postGoodInfo(type):
     currentTime = datetime.now()
     for keyItem, urlItem in goodInfoUrl.items():
         response = requests.get(urlItem, headers={'User-Agent': userAgentRoute()})
-        time.sleep(2)
+        time.sleep(1)
         response.encoding = 'utf-8'
         htmlTree = etree.HTML(response.text)
         
@@ -63,7 +67,6 @@ def postGoodInfo(type):
                     'bias20': bias20
                 })
         finalResult[keyItem] = listResult
-        print(listResult)
     finalResult['updateDay'] = f"{(finalResult['bull'][0]['updateDay']).replace('/', '-')}"
     postDBGoodInfoCross(finalResult, type)
 
