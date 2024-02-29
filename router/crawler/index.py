@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, BackgroundTasks
-from .goodInfo import postGoodInfo, getGoodInfoCrossData
+from .goodInfo import postGoodInfo, getGoodInfoCrossData, getEchartsObj
 import asyncio
 from ..public.getDifference import getDifferenceFunc
 
@@ -42,3 +42,8 @@ async def api(listType, marketType, crossType, request: Request):
         resultObj[marketType] = [] if len(list1[marketType]) > len(list2[marketType]) else getDifferenceFunc(list1[marketType], list2[marketType])
         return resultObj
 
+
+@router.post('/echarts')
+async def api():
+    result = getEchartsObj('cross1020')
+    return result

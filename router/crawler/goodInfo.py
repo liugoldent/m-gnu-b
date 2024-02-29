@@ -1,7 +1,7 @@
 from lxml import etree
 from datetime import datetime
 from ..public.fakeUserAgentGenerate import userAgentRoute
-from ..public.db import postDBGoodInfoCross, getDBGoodInfoData
+from ..public.db import postDBGoodInfoCross, getDBGoodInfoData, getCollectionAllData
 import re
 
 import time
@@ -96,3 +96,30 @@ def getGoodInfoCrossData(day, marketType, crossType):
         marketType: listResult[marketType],
         'updateDay':  listResult['updateDay']
     }
+
+# 取得 echarts 顯示obj
+def getEchartsObj(crossType):
+    cursor = getCollectionAllData(crossType)
+    # 初始化空列表
+    bull_lengths = []
+    bear_lengths = []
+    update_days = []
+
+    # 遍歷查詢結果
+    for doc in cursor:
+        # 計算 "bull" 和 "bear" 欄位的長度
+        bull_lengths.append(len(doc['bull']))
+        bear_lengths.append(len(doc['bear']))
+        update_days.append(doc['updateDay'])
+
+    # 構建新的字典
+    result = {
+        "bull": bull_lengths,
+        "bear": bear_lengths,
+        "updateDay": update_days
+    }
+    return result
+
+
+
+

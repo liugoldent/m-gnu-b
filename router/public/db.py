@@ -22,3 +22,11 @@ def postDBGoodInfoCross(codeObject, collectionName):
     db = client['goodInfo']
     db[collectionName].insert_one(codeObject)
     print(f'finish{collectionName}')
+
+# 找尋某個collection所有資料
+def getCollectionAllData(collectionName):
+    db = client['goodInfo']
+    collection = db[collectionName]  # 修改為你的集合名稱
+    # 查詢集合中的所有文檔
+    cursor = collection.find({})
+    return cursor
