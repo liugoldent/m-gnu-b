@@ -94,5 +94,5 @@ def getGoodInfoCrossData(day, marketType, crossType):
         listResult['updateDay'] = key['updateDay']
     return {
         marketType: listResult[marketType],
-        'updateDay':  key['updateDay']
+        'updateDay':  listResult['updateDay']
     }

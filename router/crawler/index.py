@@ -39,8 +39,6 @@ async def api(listType, marketType, crossType, request: Request):
         return list1
     if listType == 'difference':
         list2 = getGoodInfoCrossData(rawDay['day2'], marketType, crossType)
-        print(len(list1[marketType]))
-        print(len(list2[marketType]))
         resultObj[marketType] = [] if len(list1[marketType]) > len(list2[marketType]) else getDifferenceFunc(list1[marketType], list2[marketType])
         return resultObj
 

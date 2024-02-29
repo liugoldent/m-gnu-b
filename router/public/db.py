@@ -15,9 +15,7 @@ client = MongoClient(cluster, tlsCAFile=certifi.where())
 def getDBGoodInfoData(day, crossType):
     db = client['goodInfo']
     result = db[crossType].find({'updateDay': day})
-    print(result)
     return result
-
 
 # 更新goodInfo 10cross20 collection
 def postDBGoodInfoCross(codeObject, collectionName):
