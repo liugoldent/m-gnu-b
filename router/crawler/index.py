@@ -47,3 +47,18 @@ async def api(listType, marketType, crossType, request: Request):
 async def api():
     result = getEchartsObj('cross1020')
     return result
+
+
+# 取得cross資料庫資料
+# {crossType}：是哪個資料庫（cross1020 or cross0520
+# {listType}：是取交集或是單純列表
+# {marketType}：bull or bear去區分多空
+@router.post('/test/goodInfo/{crossType}/list/{marketType}')
+async def api(marketType, crossType, request: Request):
+    postData = await request.json()
+    list1 = getGoodInfoCrossData(postData['day1'], marketType, crossType)
+    onlyList = sorted(list1[marketType], key=lambda x: x["code"]) 
+    currentPage = postData['currentPage']
+    start_index = (currentPage - 1) * 10
+    end_index = (currentPage * 10) - 1
+    return onlyList[start_index: end_index]
