@@ -1,7 +1,7 @@
 from lxml import etree
 from datetime import datetime
 from ..public.fakeUserAgentGenerate import userAgentRoute
-from ..public.db import postDBGoodInfoCross, getDBGoodInfoData, getCollectionAllData
+from ..public.db import postDBGoodInfoCross, getDBGoodInfoData, getCollectionAllData, postDBGoodInfoTurnOver
 import re
 
 import time
@@ -25,6 +25,9 @@ goodInfoTypeUrl = {
         'bull': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=5%E6%97%A5%2F10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E5%A4%9A%E9%A0%AD%E6%8E%92%E5%88%97%40%405%E6%97%A5%2F10%E6%97%A5%2F20%E6%97%A5',
         'bear': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=5%E6%97%A5%2F10%E6%97%A5%2F20%E6%97%A5%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%40%E5%9D%87%E5%83%B9%E7%B7%9A%E7%A9%BA%E9%A0%AD%E6%8E%92%E5%88%97%40%405%E6%97%A5%2F10%E6%97%A5%2F20%E6%97%A5'
     }
+}
+overUrl = {
+    'tureOver': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E6%88%90%E4%BA%A4%E9%87%91%E9%A1%8D+%28%E9%AB%98%E2%86%92%E4%BD%8E%29%40%40%E6%88%90%E4%BA%A4%E9%87%91%E9%A1%8D%40%40%E7%94%B1%E9%AB%98%E2%86%92%E4%BD%8E'
 }
 # 更新goodInfo交叉資料
 def postGoodInfo(type):
@@ -120,6 +123,31 @@ def getEchartsObj(crossType):
     }
     return result
 
-
+# 取得成交金額排行
+def getTurnOverStockList():
+    finalResult = {}
+    currentTime = datetime.now()
+    for keyItem, urlItem in overUrl.items():
+        print(urlItem)
+        response = requests.get(urlItem, headers={'User-Agent': userAgentRoute()})
+        time.sleep(1)
+        response.encoding = 'utf-8'
+        htmlTree = etree.HTML(response.text)
+        categoryCodeList = htmlTree.xpath('//*[@id="divStockList"]/table[2]/tr/td[2]/nobr/a')
+        categoryNameList = htmlTree.xpath('//*[@id="divStockList"]/table[2]/tr/td[3]/nobr/a')
+        categoryDateList = htmlTree.xpath('//*[@id="divStockList"]/table[1]/tr/td[5]/nobr')
+        updateDay = categoryDateList[1].text
+        listResult = []
+        for index, item in enumerate(categoryCodeList):
+            if index <= 50:
+                listResult.append({
+                    'code': item.text,
+                    'name': categoryNameList[index].text,
+                    'updateDay': f"{currentTime.year}/{updateDay}",
+                })
+        finalResult['turnOverList'] = listResult
+        finalResult['updateDay'] = f"{(finalResult['turnOverList'][0]['updateDay']).replace('/', '-')}"
+    print(finalResult)
+    postDBGoodInfoTurnOver(finalResult, 'turnOver')
 
 

@@ -30,3 +30,9 @@ def getCollectionAllData(collectionName):
     # 查詢集合中的所有文檔
     cursor = collection.find({})
     return cursor
+
+# 更新成交金額collection
+def postDBGoodInfoTurnOver(codeObject, collectionName):
+    db = client['goodInfo']
+    db[collectionName].insert_one(codeObject)
+    print(f'finish{collectionName}')
