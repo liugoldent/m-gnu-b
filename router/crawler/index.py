@@ -4,6 +4,7 @@ import asyncio
 from ..public.getDifference import getDifferenceFunc
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+import time
 
 
 router = APIRouter()
@@ -22,26 +23,30 @@ async def api(background_tasks: BackgroundTasks, crossType: str):
 
 # 一次更新所有collection資料庫
 @router.post('/goodInfo')
-async def api():
-    def my_job():
-        print('start')
-        postGoodInfo('cross1020')
-        postGoodInfo('cross0520')
-        postGoodInfo('cross051020')
-        getTurnOverStockList()
-    scheduler = BackgroundScheduler(timeZone='Asia/Shanghai')
-    scheduler.add_job(
-        my_job, 
-        trigger=CronTrigger(hour=22, minute=00),
-        id="my_task", 
-        name="每天晚上22:00执行的定时任务"  
-    )  
-    scheduler.start()
+async def api(background_tasks: BackgroundTasks):
+    # def my_job():
+    #     print('start')
+    #     postGoodInfo('cross1020')
+    #     postGoodInfo('cross0520')
+    #     postGoodInfo('cross051020')
+    #     getTurnOverStockList()
+    # scheduler = BackgroundScheduler(timeZone='Asia/Shanghai')
+    # scheduler.add_job(
+    #     my_job, 
+    #     trigger=CronTrigger(hour=22, minute=00),
+    #     id="my_task", 
+    #     name="每天晚上22:00执行的定时任务"  
+    # )  
+    # scheduler.start()
     # 以下是背景任務
-    # background_tasks.add_task(postGoodInfo, 'cross1020')
-    # background_tasks.add_task(postGoodInfo, 'cross0520')
-    # background_tasks.add_task(postGoodInfo, 'cross051020')
-    # background_tasks.add_task(getTurnOverStockList)
+    time.sleep(2)
+    background_tasks.add_task(postGoodInfo, 'cross1020')
+    time.sleep(2)
+    background_tasks.add_task(postGoodInfo, 'cross0520')
+    time.sleep(2)
+    background_tasks.add_task(postGoodInfo, 'cross051020')
+    time.sleep(2)
+    background_tasks.add_task(getTurnOverStockList)
     return 'ing'
 
 # 取得cross資料庫資料

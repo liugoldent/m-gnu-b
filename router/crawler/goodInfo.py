@@ -36,7 +36,7 @@ def postGoodInfo(type):
     currentTime = datetime.now()
     for keyItem, urlItem in goodInfoUrl.items():
         response = requests.get(urlItem, headers={'User-Agent': userAgentRoute()})
-        time.sleep(1)
+        time.sleep(2)
         response.encoding = 'utf-8'
         htmlTree = etree.HTML(response.text)
         
