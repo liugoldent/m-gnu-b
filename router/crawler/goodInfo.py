@@ -1,7 +1,7 @@
 from lxml import etree
 from datetime import datetime
 from ..public.fakeUserAgentGenerate import userAgentRoute
-from ..public.db import postDBGoodInfoCross, getDBGoodInfoData, getCollectionAllData, postDBGoodInfoTurnOver
+from ..public.db import postDBGoodInfoCollection, getDBGoodInfoData, getCollectionAllData, postDBGoodInfoTurnOver
 import re
 
 import time
@@ -28,6 +28,10 @@ goodInfoTypeUrl = {
 }
 overUrl = {
     'tureOver': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E6%88%90%E4%BA%A4%E9%87%91%E9%A1%8D+%28%E9%AB%98%E2%86%92%E4%BD%8E%29%40%40%E6%88%90%E4%BA%A4%E9%87%91%E9%A1%8D%40%40%E7%94%B1%E9%AB%98%E2%86%92%E4%BD%8E'
+}
+investorUrl = {
+    'bull': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=%E5%A4%96%E8%B3%87%E3%80%81%E6%8A%95%E4%BF%A1%E5%90%8C%E6%AD%A5%E8%B2%B7%E8%B6%85%E2%80%93%E7%95%B6%E6%97%A5%40%40%E5%A4%96%E8%B3%87%E3%80%81%E6%8A%95%E4%BF%A1%E5%90%8C%E6%AD%A5%E8%B2%B7%E8%B6%85%40%40%E7%95%B6%E6%97%A5',
+    'bear': 'https://goodinfo.tw/tw2/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=%E5%A4%96%E8%B3%87%E3%80%81%E6%8A%95%E4%BF%A1%E5%90%8C%E6%AD%A5%E8%B3%A3%E8%B6%85%E2%80%93%E7%95%B6%E6%97%A5%40%40%E5%A4%96%E8%B3%87%E3%80%81%E6%8A%95%E4%BF%A1%E5%90%8C%E6%AD%A5%E8%B3%A3%E8%B6%85%40%40%E7%95%B6%E6%97%A5'
 }
 # 更新goodInfo交叉資料
 def postGoodInfo(type):
@@ -71,7 +75,7 @@ def postGoodInfo(type):
                 })
         finalResult[keyItem] = listResult
     finalResult['updateDay'] = f"{(finalResult['bull'][0]['updateDay']).replace('/', '-')}"
-    postDBGoodInfoCross(finalResult, type)
+    postDBGoodInfoCollection(finalResult, type)
 
 # 計算Bias
 def getBias(text):
@@ -150,4 +154,40 @@ def getTurnOverStockList():
     print(finalResult)
     postDBGoodInfoTurnOver(finalResult, 'turnOver')
 
+# 取得法人共買清單
+def postInvestorList():
+    finalResult = {}
+    currentTime = datetime.now()
+    for keyItem, urlItem in investorUrl.items():
+        response = requests.get(urlItem, headers={'User-Agent': userAgentRoute()})
+        time.sleep(2)
+        response.encoding = 'utf-8'
+        htmlTree = etree.HTML(response.text)
+        
+        categoryCodeList = htmlTree.xpath('//*[@id="divStockList"]/table[2]/tr/td[1]/nobr/a/text()')
+        categoryNameList = htmlTree.xpath('//*[@id="divStockList"]/table[2]/tr/td[2]/nobr/a/text()')
+        categoryCloseList = htmlTree.xpath('//*[@id="divStockList"]/table[1]/tr/td[3]/nobr/a/text()')
+        categoryVolumeList = htmlTree.xpath('//*[@id="divStockList"]/table[1]/tr/td[6]/nobr')
+        categoryDateList = htmlTree.xpath('//*[@id="divStockList"]/table[1]/tr/td[7]/nobr/a/text()')
+
+        listResult = []
+        for index, item in enumerate(categoryVolumeList):
+            if ',' in categoryVolumeList[index].text:
+                code = categoryCodeList[index]
+                name = categoryNameList[index]
+                close = float(categoryCloseList[index])
+                volume = int(categoryVolumeList[index].text.replace(',', ''))
+                updateDay = categoryDateList[index]
+                
+                listResult.append({
+                    'code': code,
+                    'name': name,
+                    'close': close,
+                    'volume': volume,
+                    'updateDay': f"{currentTime.year}/{updateDay}",
+                    'buyOrSell': keyItem,
+                })
+        finalResult[keyItem] = sorted(listResult, key=lambda x: x['volume'], reverse=True)
+    finalResult['updateDay'] = f"{(finalResult['bull'][0]['updateDay']).replace('/', '-')}"
+    postDBGoodInfoCollection(finalResult, 'investor')
 
